@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import logger from "./src/utils/logger";
 import cors from "cors";
+import rootRouter from "./src/routes";
 
 dotenv.config();
 
@@ -31,10 +32,13 @@ const initServer = async () => {
         origin: "*",
       })
     );
+    app.use("/api", rootRouter);
   } catch (error) {
     logger.error(`Could not start server: ${error}`);
   }
 };
+
+initServer();
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
