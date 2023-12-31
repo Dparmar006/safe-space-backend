@@ -6,7 +6,11 @@ export type IPostDocument = IPost & Document;
 const PostSchema: Schema = new Schema({
   content: { type: String, required: true },
   images: [{ type: String }],
-  authorId: { type: mongoose.Types.ObjectId, required: true },
+  authorId: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+    required: [true, "Author is required"],
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
