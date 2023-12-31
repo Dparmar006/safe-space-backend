@@ -13,11 +13,19 @@ const handleGlobalError = (
   let code;
   let status = 500;
   let message = error.message;
+  let success = false;
 
   if (error instanceof MongoError) {
     status = 400;
     message = "Database error occured";
     code = error.code;
+  }
+
+  if (error instanceof RequestError) {
+    status = error.status;
+    message = error.message;
+    code = error.code;
+    success = isCodeSuccessful(error.status);
   }
 
   return res.status(status).send({
@@ -33,14 +41,16 @@ const handleGlobalError = (
 export default handleGlobalError;
 
 export class RequestError extends Error {
-  public statusCode: number;
+  public status: number;
   public success: boolean;
   public result: any | undefined;
-  constructor(message: string, statusCode = 500) {
+  public code: string;
+  constructor(message: string, status = 400) {
     super(message);
-    this.statusCode = statusCode;
+    this.status = status;
     this.name = "RequestError";
-    this.success = isCodeSuccessful(statusCode);
+    this.success = isCodeSuccessful(status);
     this.result = null;
+    this.code = "REQUEST_ERROR";
   }
 }
