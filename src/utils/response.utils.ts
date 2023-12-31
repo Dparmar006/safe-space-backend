@@ -2,18 +2,18 @@ import { Response } from "express";
 
 export const sendResponse = (
   res: Response,
-  code: number,
+  status: number,
   message?: string,
   data: any = {}
 ) => {
-  res.status(code).json({
-    success: isCodeSuccessful(code),
-    message: message ? message : statusMessages[code] || "Unknown Status",
+  res.status(status).json({
+    success: isCodeSuccessful(status),
+    message: message ? message : statusMessages[status] || "Unknown Status",
     result: data,
   });
 };
 
-const statusMessages: Record<number, string> = {
+export const statusMessages: Record<number, string> = {
   200: "The request has succeeded.",
   201: "The request has been fulfilled and resulted in a new resource being created.",
   400: "The server could not understand the request due to invalid syntax or missing parameters.",
@@ -23,4 +23,5 @@ const statusMessages: Record<number, string> = {
   500: "The server encountered an unexpected condition that prevented it from fulfilling the request.",
 };
 
-export const isCodeSuccessful = (code: number) => code >= 200 && code < 300;
+export const isCodeSuccessful = (status: number) =>
+  status >= 200 && status < 300;

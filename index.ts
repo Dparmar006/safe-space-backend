@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import logger from "./src/utils/logger";
 import cors from "cors";
 import rootRouter from "./src/routes";
+import handleGlobalError from "./src/utils/globalErrorHandler.utils";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ const initServer = async () => {
       })
     );
     app.use("/api", rootRouter);
+    app.use(handleGlobalError);
   } catch (error) {
     logger.error(`Could not start server: ${error}`);
   }
