@@ -4,7 +4,7 @@
   "description": "backend project for untold",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && yarn",
+    "build": "tsc -p tsconfig.json && yarn",
     "start": "node dist/index.js",
     "dev": "nodemon index.ts"
   },
