@@ -7,7 +7,6 @@ import { compareHashString, hashString } from "../utils/encryption.utils";
 export const signup = async (req: Request, res: Response) => {
   const requestBody = req.body;
   const { email, password, username, firstName, lastName } = requestBody;
-  console.log(requestBody);
   if (!email || !password || !username || !firstName || !lastName) {
     throw new RequestError(
       "Please provide password, email, first name, last name and username",
@@ -30,7 +29,6 @@ export const signup = async (req: Request, res: Response) => {
 export const signin = async (req: Request, res: Response) => {
   const requestBody = req.body;
   const { email, password, username } = requestBody;
-  console.log(requestBody);
   if ((!email || !username) && !password) {
     throw new RequestError("Please provide proper credentials", 400);
   }
