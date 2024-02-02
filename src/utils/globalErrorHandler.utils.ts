@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "./logger";
 import { MongoError } from "mongodb";
-import { isCodeSuccessful } from "./response.utils";
+import { isCodeSuccessful, statusMessages } from "./response.utils";
 
 const handleGlobalError = (
   error: Error,
@@ -13,11 +13,26 @@ const handleGlobalError = (
   let code;
   let status = 500;
   let message = error.message;
+  let success = false;
 
   if (error instanceof MongoError) {
     status = 400;
     message = "Database error occured";
     code = error.code;
+  }
+
+  if (error instanceof RequestError) {
+    status = error.status;
+    message = error.message;
+    code = error.code;
+    success = isCodeSuccessful(error.status);
+  }
+
+  if (error instanceof AuthenticationError) {
+    status = error.status;
+    message = error.message;
+    code = error.code;
+    success = isCodeSuccessful(error.status);
   }
 
   return res.status(status).send({
@@ -33,14 +48,31 @@ const handleGlobalError = (
 export default handleGlobalError;
 
 export class RequestError extends Error {
-  public statusCode: number;
+  public status: number;
   public success: boolean;
   public result: any | undefined;
-  constructor(message: string, statusCode = 500) {
+  public code: string;
+  constructor(message: string = statusMessages[400], status = 400) {
     super(message);
-    this.statusCode = statusCode;
+    this.status = status;
     this.name = "RequestError";
-    this.success = isCodeSuccessful(statusCode);
+    this.success = isCodeSuccessful(status);
     this.result = null;
+    this.code = "REQUEST_ERROR";
+  }
+}
+
+export class AuthenticationError extends Error {
+  public status: number;
+  public success: boolean;
+  public result: any | undefined;
+  public code: string;
+  constructor(message: string = statusMessages[401], status = 401) {
+    super(message);
+    this.status = status;
+    this.name = "AuthenticationError";
+    this.success = isCodeSuccessful(status);
+    this.result = null;
+    this.code = "AUTHENTICATION_ERROR";
   }
 }
