@@ -3,6 +3,10 @@ import { sendResponse } from "../utils/response.utils";
 import { createUser, findOneUser } from "../services/users.services";
 import { RequestError } from "../utils/globalErrorHandler.utils";
 import { compareHashString, hashString } from "../utils/encryption.utils";
+import {
+  generateJWTAccessToken,
+  generateJWTRefrehToken,
+} from "../utils/auth.utils";
 
 export const signup = async (req: Request, res: Response) => {
   const requestBody = req.body;
@@ -33,7 +37,13 @@ export const signin = async (req: Request, res: Response) => {
     throw new RequestError("Please provide proper credentials", 400);
   }
   // check if user already exists
-  const user = await findOneUser({ $or: [{ email }, { username }] });
+  const user = await findOneUser(
+    { $or: [{ email }, { username }] },
+    {},
+    {
+      lean: true,
+    }
+  );
   if (!user)
     throw new RequestError("User with this information doesn't exists", 400);
 
@@ -45,5 +55,17 @@ export const signin = async (req: Request, res: Response) => {
       400
     );
 
-  return sendResponse(res, 200, "User logged in successfully.", user);
+  const token = generateJWTAccessToken({ email: user.email, _id: user._id });
+  const refreshToken = generateJWTRefrehToken({
+    email: user.email,
+    _id: user._id,
+  });
+
+  const response = {
+    user,
+    token,
+    refreshToken,
+  };
+
+  return sendResponse(res, 200, "User logged in successfully.", response);
 };

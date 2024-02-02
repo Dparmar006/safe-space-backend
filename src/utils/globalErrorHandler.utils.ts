@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "./logger";
 import { MongoError } from "mongodb";
-import { isCodeSuccessful } from "./response.utils";
+import { isCodeSuccessful, statusMessages } from "./response.utils";
 
 const handleGlobalError = (
   error: Error,
@@ -28,6 +28,13 @@ const handleGlobalError = (
     success = isCodeSuccessful(error.status);
   }
 
+  if (error instanceof AuthenticationError) {
+    status = error.status;
+    message = error.message;
+    code = error.code;
+    success = isCodeSuccessful(error.status);
+  }
+
   return res.status(status).send({
     success: isCodeSuccessful(status),
     status,
@@ -45,12 +52,27 @@ export class RequestError extends Error {
   public success: boolean;
   public result: any | undefined;
   public code: string;
-  constructor(message: string, status = 400) {
+  constructor(message: string = statusMessages[400], status = 400) {
     super(message);
     this.status = status;
     this.name = "RequestError";
     this.success = isCodeSuccessful(status);
     this.result = null;
     this.code = "REQUEST_ERROR";
+  }
+}
+
+export class AuthenticationError extends Error {
+  public status: number;
+  public success: boolean;
+  public result: any | undefined;
+  public code: string;
+  constructor(message: string = statusMessages[401], status = 401) {
+    super(message);
+    this.status = status;
+    this.name = "AuthenticationError";
+    this.success = isCodeSuccessful(status);
+    this.result = null;
+    this.code = "AUTHENTICATION_ERROR";
   }
 }
